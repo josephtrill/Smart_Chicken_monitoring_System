@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- 1. SUMMARY CARD ROW (4 CARDS) -->
+<div class="row g-4 mb-4">
+  <!-- Card 1: Temperature -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #fff0f0);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Temperature</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="tempVal">--</span><small class="fs-6 text-muted">°C</small>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-danger d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-temperature-half"></i>
+        </div>
+      </div>
+      <div class="mt-3 d-flex align-items-center gap-2">
+        <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small" id="tempBadge">
+          <i class="fa-solid fa-arrow-trend-up me-1"></i><span id="tempTrend">--</span>
+        </span>
+        <small class="text-muted" id="tempStatus">Normal</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 2: Humidity -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #f0f8ff);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Humidity</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="humidVal">--</span><small class="fs-6 text-muted">%</small>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-primary d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-droplet"></i>
+        </div>
+      </div>
+      <div class="mt-3 d-flex align-items-center gap-2">
+        <span class="badge bg-primary-subtle text-primary rounded-pill px-2 py-1 small" id="humidBadge">
+          <i class="fa-solid fa-water me-1"></i><span id="humidTrend">--</span>
+        </span>
+        <small class="text-muted" id="humidStatus">Optimal</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Gas -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #f0fff4);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Gas (Ammonia)</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="gasVal">--</span><small class="fs-6 text-muted">ppm</small>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-success d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-wind"></i>
+        </div>
+      </div>
+      <div class="mt-3">
+        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1 small" id="gasBadge">Good
+          Quality</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 4: ML MSE Score -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #fff8e1);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">ML MSE Score</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="mseVal">--</span>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-warning d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+      </div>
+      <div class="mt-3 d-flex align-items-center gap-2">
+        <span class="badge bg-warning-subtle text-warning rounded-pill px-2 py-1 small" id="mseBadge">
+          Stable
+        </span>
+        <small class="text-muted" id="mseRating">Low Deviation</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. ENVIRONMENT STATUS + SUGGESTION BOX -->
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 24px; overflow: hidden;">
+  <div class="card-body p-0">
+    <div class="row g-0">
+      <!-- Status Column -->
+      <div
+        class="col-md-3 bg-light d-flex flex-column align-items-center justify-content-center p-4 text-center border-end">
+        <div id="statusIconContainer" class="mb-3" style="font-size: 3rem;">
+          🟢
+        </div>
+        <h5 class="fw-bold mb-1" id="overallStatus">Normal</h5>
+        <p class="text-muted small m-0">Current Environment State</p>
+      </div>
+
+      <!-- Analysis & Suggestions Column -->
+      <div class="col-md-9 p-4">
+        <div class="row h-100">
+          <div class="col-md-6 border-end">
+            <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-magnifying-glass-chart me-2 text-primary"></i>Cause
+              Analysis</h6>
+            <div id="causeAnalysis" class="text-muted small">
+              <p class="mb-2">System is analyzing environmental parameters...</p>
+            </div>
+          </div>
+          <div class="col-md-6 ps-md-4">
+            <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>Suggestions</h6>
+            <ul id="suggestionList" class="list-unstyled small text-muted m-0">
+              <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>No actions required at this time.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. ENVIRONMENTAL TREND CHART -->
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 24px;">
+  <div class="card-header bg-white py-4 border-0 px-4">
+    <h6 class="m-0 fw-bold text-dark">Environmental Trends</h6>
+  </div>
+  <div class="card-body pt-0 px-4 pb-4">
+    <canvas id="envChart" height="80"></canvas>
+  </div>
+</div>
+
+<!-- 4. RECENT READINGS (SHORT TABLE) -->
+<div class="card border-0 shadow-sm" style="border-radius: 24px;">
+  <div class="card-header bg-white py-4 border-0 px-4">
+    <h6 class="m-0 fw-bold text-dark">Recent Readings (Latest 10)</h6>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th class="ps-4">Timestamp</th>
+            <th>Temp (°C)</th>
+            <th>Humidity (%)</th>
+            <th>Gas (ppm)</th>
+            <th>MSE Score</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="envTableBody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  let envChartInstance = null;
+
+  async function loadEnvironmentData() {
+    const apiUrl = `/api/recent/environment/1?offset=0`;
+
+    // Elements
+    const tempVal = document.getElementById("tempVal");
+    const humidVal = document.getElementById("humidVal");
+    const gasVal = document.getElementById("gasVal");
+    const mseVal = document.getElementById("mseVal");
+
+    const tempBadge = document.getElementById("tempBadge");
+    const humidBadge = document.getElementById("humidBadge");
+    const gasBadge = document.getElementById("gasBadge");
+    const mseBadge = document.getElementById("mseBadge");
+
+    const tempStatus = document.getElementById("tempStatus");
+    const humidStatus = document.getElementById("humidStatus");
+    const mseRating = document.getElementById("mseRating");
+
+    const overallStatus = document.getElementById("overallStatus");
+    const statusIconContainer = document.getElementById("statusIconContainer");
+    const causeAnalysis = document.getElementById("causeAnalysis");
+    const suggestionList = document.getElementById("suggestionList");
+
+    const tbody = document.getElementById("envTableBody");
+
+    try {
+      const res = await fetch(apiUrl);
+      const data = await res.json();
+      const history = data.history || [];
+
+      if (history.length > 0) {
+        const latest = history[0];
+        const prev = history.length > 1 ? history[1] : latest;
+
+        // 1. Update Cards
+        const temp = latest.temperature || 0;
+        const hum = latest.humidity || 0;
+        const gas = latest.gas || 0;
+        const mse = latest.mse_score || 0;
+
+        // Temp
+        tempVal.textContent = temp.toFixed(1);
+        const tempDiff = temp - (prev.temperature || 0);
+        document.getElementById("tempTrend").textContent = tempDiff >= 0 ? `+${tempDiff.toFixed(1)}` : tempDiff.toFixed(1);
+        tempBadge.className = tempDiff > 0 ? "badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small" : "badge bg-info-subtle text-info rounded-pill px-2 py-1 small";
+        tempStatus.textContent = temp > 34 ? "High Heat" : (temp < 20 ? "Cold" : "Normal");
+
+        // Humidity
+        humidVal.textContent = hum.toFixed(1);
+        const humDiff = hum - (prev.humidity || 0);
+        document.getElementById("humidTrend").textContent = humDiff >= 0 ? `+${humDiff.toFixed(1)}` : humDiff.toFixed(1);
+        humidStatus.textContent = hum > 80 ? "Too Humid" : (hum < 40 ? "Dry" : "Optimal");
+
+        // Gas
+        gasVal.textContent = gas.toFixed(0);
+        if (gas > 600) {
+          gasBadge.className = "badge bg-danger-subtle text-danger rounded-pill px-3 py-1 small";
+          gasBadge.textContent = "Hazardous";
+        } else if (gas > 300) {
+          gasBadge.className = "badge bg-warning-subtle text-warning rounded-pill px-3 py-1 small";
+          gasBadge.textContent = "Moderate";
+        } else {
+          gasBadge.className = "badge bg-success-subtle text-success rounded-pill px-3 py-1 small";
+          gasBadge.textContent = "Good Quality";
+        }
+
+        // MSE
+        mseVal.textContent = mse.toFixed(2);
+        if (latest.is_anomaly) {
+          mseBadge.className = "badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small";
+          mseBadge.textContent = "Anomaly";
+          mseRating.textContent = "High Deviation";
+        } else {
+          mseBadge.className = "badge bg-success-subtle text-success rounded-pill px-2 py-1 small";
+          mseBadge.textContent = "Stable";
+          mseRating.textContent = "Low Deviation";
+        }
+
+        // 2. Status & Analysis Logic
+        let status = "Normal";
+        let statusIcon = "🟢";
+        let causes = [];
+        let suggestions = [];
+
+        // Thresholds
+        const TEMP_HIGH = 34;
+        const HUM_HIGH = 80;
+        const GAS_HIGH = 600;
+        const MSE_HIGH = 600;
+
+        if (latest.is_anomaly || temp > TEMP_HIGH || hum > HUM_HIGH || gas > GAS_HIGH) {
+          if (latest.is_anomaly || (temp > TEMP_HIGH && gas > GAS_HIGH)) {
+            status = "Severe Anomaly";
+            statusIcon = "🔥";
+            overallStatus.className = "fw-bold mb-1 text-danger";
+          } else if (temp > TEMP_HIGH || gas > GAS_HIGH) {
+            status = "High Stress";
+            statusIcon = "🔴";
+            overallStatus.className = "fw-bold mb-1 text-danger";
+          } else {
+            status = "Mild Stress";
+            statusIcon = "🟡";
+            overallStatus.className = "fw-bold mb-1 text-warning";
+          }
+        } else {
+          overallStatus.className = "fw-bold mb-1 text-success";
+        }
+
+        overallStatus.textContent = status;
+        statusIconContainer.textContent = statusIcon;
+
+        // Cause Analysis & Suggestions
+        if (temp > TEMP_HIGH) {
+          causes.push(`<strong>High Temperature (${temp.toFixed(1)}°C):</strong> Chickens may experience heat stress leading to reduced egg production.`);
+          suggestions.push("Turn on ventilation fans immediately.");
+          suggestions.push("Mist the coop to lower temperature.");
+        }
+        if (hum > HUM_HIGH) {
+          causes.push(`<strong>High Humidity (${hum.toFixed(1)}%):</strong> Increases risk of bacterial growth and respiratory discomfort.`);
+          suggestions.push("Increase airflow to reduce moisture.");
+          suggestions.push("Check for water leaks.");
+        }
+        if (gas > GAS_HIGH) {
+          causes.push(`<strong>High Ammonia (${gas.toFixed(0)} ppm):</strong> Elevated levels can cause eye/respiratory irritation.`);
+          suggestions.push("Clean droppings and wet litter.");
+          suggestions.push("Improve ventilation rate.");
+        }
+        if (mse > MSE_HIGH) {
+          causes.push(`<strong>Unusual Environmental Pattern (MSE ${mse.toFixed(0)}):</strong> The system detected a deviation from normal daily patterns.`);
+          suggestions.push("Inspect sensors for calibration issues.");
+          suggestions.push("Check for external environmental factors.");
+        }
+
+        if (causes.length === 0) {
+          causes.push("Environmental conditions are within optimal ranges.");
+          suggestions.push("Maintain current settings.");
+          suggestions.push("Routine monitoring.");
+        }
+
+        causeAnalysis.innerHTML = causes.map(c => `<p class="mb-2">${c}</p>`).join("");
+        suggestionList.innerHTML = suggestions.map(s => `<li class="mb-2"><i class="fa-solid fa-angle-right text-primary me-2"></i>${s}</li>`).join("");
+
+        // 3. Update Table (Limit 10)
+        tbody.innerHTML = "";
+        history.slice(0, 10).forEach((r) => {
+          const rowStatus = r.is_anomaly ? '<span class="badge bg-danger-subtle text-danger">Anomaly</span>' : '<span class="badge bg-success-subtle text-success">Normal</span>';
+          const row = `
+            <tr>
+              <td class="ps-4 text-muted small">${r.timestamp}</td>
+              <td class="fw-bold">${r.temperature?.toFixed(1)}</td>
+              <td>${r.humidity?.toFixed(1)}</td>
+              <td>${r.gas?.toFixed(0)}</td>
+              <td>${r.mse_score?.toFixed(4)}</td>
+              <td>${rowStatus}</td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+
+        // 4. Update Chart
+        const chartData = history.slice(0, 50); // Show more history on chart
+        const labels = chartData.map(r => r.timestamp.slice(11, 19)).reverse();
+        const temps = chartData.map(r => r.temperature).reverse();
+        const hums = chartData.map(r => r.humidity).reverse();
+        const gases = chartData.map(r => r.gas).reverse();
+
+        const ctx = document.getElementById("envChart").getContext("2d");
+        if (envChartInstance) envChartInstance.destroy();
+
+        envChartInstance = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Temperature",
+                data: temps,
+                borderColor: "#ef5350",
+                backgroundColor: "rgba(239, 83, 80, 0.1)",
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 4
+              },
+              {
+                label: "Humidity",
+                data: hums,
+                borderColor: "#42a5f5",
+                backgroundColor: "rgba(66, 165, 245, 0.1)",
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 4
+              },
+              {
+                label: "Gas",
+                data: gases,
+                borderColor: "#66bb6a",
+                backgroundColor: "rgba(102, 187, 106, 0.1)",
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            interaction: {
+              mode: 'index',
+              intersect: false,
+            },
+            plugins: {
+              legend: { position: 'top' },
+              tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                titleColor: '#000',
+                bodyColor: '#666',
+                borderColor: '#ddd',
+                borderWidth: 1
+              }
+            },
+            scales: {
+              x: { grid: { display: false } },
+              y: { grid: { borderDash: [2, 4] } }
+            }
+          }
+        });
+      }
+
+    } catch (err) {
+      console.error("Error loading environment data:", err);
+    }
+  }
+
+  loadEnvironmentData();
+  setInterval(loadEnvironmentData, 5000);
+</script>
+{% endblock %}

@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- 1. SUMMARY CARD ROW (4 CARDS) -->
+<div class="row g-4 mb-4">
+  <!-- Card 1: Current Behavior -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #e8f5e9);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Current Behavior</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="behaviorVal">--</span>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-success d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-eye"></i>
+        </div>
+      </div>
+      <div class="mt-3 d-flex align-items-center gap-2">
+        <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1 small" id="behaviorBadge">
+          Active
+        </span>
+        <small class="text-muted" id="behaviorStatus">Normal Activity</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 2: Anomaly Score (MSE) -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #fff8e1);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Anomaly Score (MSE)</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="mseVal">--</span>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-warning d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-chart-line"></i>
+        </div>
+      </div>
+      <div class="mt-3 d-flex align-items-center gap-2">
+        <span class="badge bg-warning-subtle text-warning rounded-pill px-2 py-1 small" id="mseBadge">
+          Stable
+        </span>
+        <small class="text-muted" id="mseRating">Low Deviation</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Active Tracking -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #e3f2fd);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Tracked Chickens</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="trackedVal">0</span>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-primary d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-crosshairs"></i>
+        </div>
+      </div>
+      <div class="mt-3">
+        <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 small"
+          id="trackingBadge">Monitoring</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 4: System Status -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #ffebee);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Vision Status</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="systemVal">Online</span>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-danger d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-video"></i>
+        </div>
+      </div>
+      <div class="mt-3 d-flex align-items-center gap-2">
+        <span class="badge bg-success-subtle text-success rounded-pill px-2 py-1 small" id="systemBadge">
+          Live
+        </span>
+        <small class="text-muted" id="systemStatus">Stream Active</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. VISION STATUS + SUGGESTION BOX -->
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 24px; overflow: hidden;">
+  <div class="card-body p-0">
+    <div class="row g-0">
+      <!-- Status Column -->
+      <div
+        class="col-md-3 bg-light d-flex flex-column align-items-center justify-content-center p-4 text-center border-end">
+        <div id="statusIconContainer" class="mb-3" style="font-size: 3rem;">
+          🟢
+        </div>
+        <h5 class="fw-bold mb-1" id="overallStatus">Normal</h5>
+        <p class="text-muted small m-0">Current Vision State</p>
+      </div>
+
+      <!-- Analysis & Suggestions Column -->
+      <div class="col-md-9 p-4">
+        <div class="row h-100">
+          <div class="col-md-6 border-end">
+            <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-magnifying-glass-chart me-2 text-primary"></i>Cause
+              Analysis</h6>
+            <div id="causeAnalysis" class="text-muted small">
+              <p class="mb-2">System is analyzing behavioral patterns...</p>
+            </div>
+          </div>
+          <div class="col-md-6 ps-md-4">
+            <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>Suggestions</h6>
+            <ul id="suggestionList" class="list-unstyled small text-muted m-0">
+              <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>No actions required at this time.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE STREAM & TRACKED LIST (Split View) -->
+<div class="row mb-4">
+  <!-- Live Feed -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm h-100" style="border-radius: 24px;">
+      <div class="card-header bg-white py-4 border-0 px-4 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 fw-bold text-dark"><i class="fa-solid fa-video me-2 text-danger"></i>Live YOLO Detection Feed
+        </h6>
+        <span class="badge bg-success-subtle text-success rounded-pill px-3">Live</span>
+      </div>
+      <div class="card-body p-4 text-center bg-dark rounded-bottom" style="border-radius: 0 0 24px 24px;">
+        <div class="position-relative"
+          style="min-height: 400px; display: flex; align-items: center; justify-content: center;">
+          <img id="liveFeed" src="{{ url_for('vision_stream') }}" class="img-fluid rounded shadow-lg"
+            style="max-height: 450px; width: 100%; object-fit: contain;" alt="Live feed unavailable">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tracked List -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm h-100" style="border-radius: 24px;">
+      <div class="card-header bg-white py-4 border-0 px-4">
+        <h6 class="m-0 fw-bold text-dark"><i class="fa-solid fa-crosshairs me-2 text-primary"></i>Tracked Chickens</h6>
+      </div>
+      <div class="card-body p-0">
+        <div id="trackedList" class="overflow-auto p-3" style="max-height: 500px;">
+          <div class="text-center text-muted py-5">
+            <i class="fa-solid fa-spinner fa-spin fs-2 mb-3"></i>
+            <p>Loading tracked objects...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. VISION TRENDS CHART -->
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 24px;">
+  <div class="card-header bg-white py-4 border-0 px-4">
+    <h6 class="m-0 fw-bold text-dark">Anomaly Score Trends (MSE)</h6>
+  </div>
+  <div class="card-body pt-0 px-4 pb-4">
+    <canvas id="visionChart" height="80"></canvas>
+  </div>
+</div>
+
+<!-- 4. RECENT READINGS (SHORT TABLE) -->
+<div class="card border-0 shadow-sm" style="border-radius: 24px;">
+  <div class="card-header bg-white py-4 border-0 px-4">
+    <h6 class="m-0 fw-bold text-dark">Recent Detections (Latest 10)</h6>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th class="ps-4">Timestamp</th>
+            <th>Behavior</th>
+            <th>MSE Score</th>
+            <th>Status</th>
+            <th>Snapshot</th>
+          </tr>
+        </thead>
+        <tbody id="visionTableBody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  let visionChartInstance = null;
+
+  // Ensure live feed is set
+  document.getElementById("liveFeed").src = "{{ url_for('vision_stream') }}";
+
+  async function loadVisionData() {
+    const apiUrl = `/api/recent/vision/1`;
+    const trackedUrl = `/api/tracked_chickens`;
+
+    // Elements
+    const behaviorVal = document.getElementById("behaviorVal");
+    const mseVal = document.getElementById("mseVal");
+    const trackedVal = document.getElementById("trackedVal");
+    const systemVal = document.getElementById("systemVal");
+
+    const behaviorBadge = document.getElementById("behaviorBadge");
+    const mseBadge = document.getElementById("mseBadge");
+    const trackingBadge = document.getElementById("trackingBadge");
+    const systemBadge = document.getElementById("systemBadge");
+
+    const behaviorStatus = document.getElementById("behaviorStatus");
+    const mseRating = document.getElementById("mseRating");
+
+    const overallStatus = document.getElementById("overallStatus");
+    const statusIconContainer = document.getElementById("statusIconContainer");
+    const causeAnalysis = document.getElementById("causeAnalysis");
+    const suggestionList = document.getElementById("suggestionList");
+
+    const tbody = document.getElementById("visionTableBody");
+    const trackedList = document.getElementById("trackedList");
+
+    try {
+      // 1. Fetch Vision History
+      const res = await fetch(apiUrl);
+      const history = await res.json(); // returns array directly
+
+      if (history.length > 0) {
+        const latest = history[0];
+
+        // Update Cards
+        const behavior = latest.behavior || "Unknown";
+        const mse = latest.mse_score || 0;
+        const isAnomaly = latest.is_anomaly || 0;
+
+        // Behavior
+        behaviorVal.textContent = behavior;
+        if (behavior.toLowerCase().includes("stress") || isAnomaly) {
+          behaviorBadge.className = "badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small";
+          behaviorBadge.textContent = "Alert";
+          behaviorStatus.textContent = "Abnormal Behavior";
+        } else {
+          behaviorBadge.className = "badge bg-success-subtle text-success rounded-pill px-2 py-1 small";
+          behaviorBadge.textContent = "Active";
+          behaviorStatus.textContent = "Normal Activity";
+        }
+
+        // MSE
+        mseVal.textContent = mse.toFixed(3);
+        if (isAnomaly) {
+          mseBadge.className = "badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small";
+          mseBadge.textContent = "High";
+          mseRating.textContent = "High Deviation";
+        } else {
+          mseBadge.className = "badge bg-success-subtle text-success rounded-pill px-2 py-1 small";
+          mseBadge.textContent = "Stable";
+          mseRating.textContent = "Low Deviation";
+        }
+
+        // Status & Analysis
+        let status = "Normal";
+        let statusIcon = "🟢";
+        let causes = [];
+        let suggestions = [];
+
+        if (isAnomaly || behavior.toLowerCase().includes("stress")) {
+          status = "Anomaly Detected";
+          statusIcon = "🔴";
+          overallStatus.className = "fw-bold mb-1 text-danger";
+
+          causes.push(`<strong>Abnormal Behavior (${behavior}):</strong> The system detected unusual movement or posture.`);
+          causes.push(`<strong>High MSE Score (${mse.toFixed(3)}):</strong> Visual patterns deviate significantly from the baseline.`);
+
+          suggestions.push("Check live feed for injured or distressed chickens.");
+          suggestions.push("Verify lighting conditions.");
+        } else {
+          overallStatus.className = "fw-bold mb-1 text-success";
+          causes.push("Visual patterns are consistent with normal flock behavior.");
+          suggestions.push("Continue routine monitoring.");
+        }
+
+        overallStatus.textContent = status;
+        statusIconContainer.textContent = statusIcon;
+        causeAnalysis.innerHTML = causes.map(c => `<p class="mb-2">${c}</p>`).join("");
+        suggestionList.innerHTML = suggestions.map(s => `<li class="mb-2"><i class="fa-solid fa-angle-right text-primary me-2"></i>${s}</li>`).join("");
+
+        // Update Table
+        tbody.innerHTML = "";
+        history.slice(0, 10).forEach((r) => {
+          const rowStatus = r.is_anomaly ? '<span class="badge bg-danger-subtle text-danger">Anomaly</span>' : '<span class="badge bg-success-subtle text-success">Normal</span>';
+          const snapshot = r.frame_path && r.frame_path !== '-' ?
+            `<a href="/uploads/images/${r.frame_path}" target="_blank" class="btn btn-sm btn-outline-secondary"><i class="fa-solid fa-image"></i></a>` :
+            '<span class="text-muted">-</span>';
+
+          const row = `
+            <tr>
+              <td class="ps-4 text-muted small">${r.timestamp}</td>
+              <td class="fw-bold">${r.behavior}</td>
+              <td>${r.mse_score?.toFixed(4)}</td>
+              <td>${rowStatus}</td>
+              <td>${snapshot}</td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+
+        // Update Chart
+        const chartData = history.slice(0, 50);
+        const labels = chartData.map(r => r.timestamp.slice(11, 19)).reverse();
+        const mses = chartData.map(r => r.mse_score).reverse();
+
+        const ctx = document.getElementById("visionChart").getContext("2d");
+        if (visionChartInstance) visionChartInstance.destroy();
+
+        visionChartInstance = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "MSE Score",
+                data: mses,
+                borderColor: "#ffa726",
+                backgroundColor: "rgba(255, 167, 38, 0.1)",
+                tension: 0.4,
+                fill: true,
+                pointRadius: 0,
+                pointHoverRadius: 4
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { position: 'top' },
+              tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                titleColor: '#000',
+                bodyColor: '#666',
+                borderColor: '#ddd',
+                borderWidth: 1
+              }
+            },
+            scales: {
+              x: { grid: { display: false } },
+              y: { grid: { borderDash: [2, 4] } }
+            }
+          }
+        });
+      }
+
+      // 2. Fetch Tracked Chickens
+      const trackRes = await fetch(trackedUrl);
+      const trackedData = await trackRes.json();
+
+      trackedVal.textContent = trackedData.length;
+      trackedList.innerHTML = "";
+
+      if (trackedData.length === 0) {
+        trackedList.innerHTML = `<div class="text-center text-muted py-5"><p>No chickens currently tracked.</p></div>`;
+      } else {
+        trackedData.forEach(ch => {
+          const statusBadge = ch.recovered ?
+            '<span class="badge bg-success-subtle text-success">Recovered</span>' :
+            '<span class="badge bg-danger-subtle text-danger">Tracking</span>';
+
+          const imgUrl = ch.frame_path ? `/uploads/images/${ch.frame_path}` : 'https://via.placeholder.com/80';
+
+          const item = `
+            <div class="d-flex align-items-center mb-3 p-3 rounded shadow-sm border bg-white">
+              <img src="${imgUrl}" class="rounded me-3" width="60" height="60" style="object-fit:cover;">
+              <div class="flex-grow-1">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <h6 class="mb-0 fw-bold text-dark">${ch.tracked_id}</h6>
+                  ${statusBadge}
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted">MSE: ${ch.mse_score?.toFixed(2)}</small>
+                  <small class="text-muted" style="font-size: 0.75rem;">${ch.last_seen}</small>
+                </div>
+              </div>
+            </div>
+          `;
+          trackedList.insertAdjacentHTML("beforeend", item);
+        });
+      }
+
+    } catch (err) {
+      console.error("Error loading vision data:", err);
+    }
+  }
+
+  loadVisionData();
+  setInterval(loadVisionData, 5000);
+</script>
+{% endblock %}

@@ -1,0 +1,33 @@
+--- environmental_data ---
+Total Records: 2
+Normal MSE (n=2):
+  Mean: 543.0600
+  Std Dev: 11.6900
+  Max: 554.7500
+  95th Percentile: 553.5810
+  99th Percentile: 554.5162
+SUGGESTED THRESHOLD (Mean + 3*Std): 578.1300
+SUGGESTED THRESHOLD (Max + 10%): 610.2250
+
+--- audio_data ---
+Total Records: 2
+No Normal Data to calibrate.
+Anomaly MSE (n=2): Avg=1.7400, Min=0.0800
+
+--- vision_data ---
+Total Records: 92
+Normal MSE (n=56):
+  Mean: 10.2483
+  Std Dev: 34.0493
+  Max: 174.8310
+  95th Percentile: 57.1765
+  99th Percentile: 169.9267
+SUGGESTED THRESHOLD (Mean + 3*Std): 112.3962
+SUGGESTED THRESHOLD (Max + 10%): 192.3141
+Anomaly MSE (n=36): Avg=18.3032, Min=0.1189
+
+--- fusion_predictions ---
+Total Records: 100
+No Normal Data to calibrate.
+Anomaly MSE (n=100): Avg=0.7500, Min=0.7500
+

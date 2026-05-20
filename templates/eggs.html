@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- 1. SUMMARY CARD ROW (4 CARDS) -->
+<div class="row g-4 mb-4">
+  <!-- Card 1: Today's Production -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #fff3e0);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Latest Production</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="todayEggs">--</span>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-warning d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-egg"></i>
+        </div>
+      </div>
+      <div class="mt-3 d-flex align-items-center gap-2">
+        <span class="badge bg-warning-subtle text-warning rounded-pill px-2 py-1 small" id="todayBadge">
+          Recorded
+        </span>
+        <small class="text-muted" id="todayDate">--</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 2: Prediction -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #e3f2fd);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Tomorrow's Forecast</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="predictVal">--</span>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-primary d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+      </div>
+      <div class="mt-3 d-flex align-items-center gap-2">
+        <span class="badge bg-primary-subtle text-primary rounded-pill px-2 py-1 small" id="predictBadge">
+          Analyzing
+        </span>
+        <small class="text-muted">Based on recent data</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Broken Rate -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #ffebee);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Broken Rate</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="brokenRate">--</span><small class="fs-6 text-muted">%</small>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-danger d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-heart-crack"></i>
+        </div>
+      </div>
+      <div class="mt-3">
+        <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1 small" id="brokenBadge">Check
+          Nests</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 4: Weekly Total -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #e8f5e9);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Weekly Total</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="weeklyTotal">--</span>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-success d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-basket-shopping"></i>
+        </div>
+      </div>
+      <div class="mt-3">
+        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-1 small">Accumulated</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. PREDICTION STATUS + SUGGESTION BOX -->
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 24px; overflow: hidden;">
+  <div class="card-body p-0">
+    <div class="row g-0">
+      <!-- Status Column -->
+      <div
+        class="col-md-3 bg-light d-flex flex-column align-items-center justify-content-center p-4 text-center border-end">
+        <div id="statusIconContainer" class="mb-3" style="font-size: 3rem;">
+          🔮
+        </div>
+        <h5 class="fw-bold mb-1" id="overallStatus">Forecasting...</h5>
+        <p class="text-muted small m-0">Production Outlook</p>
+      </div>
+
+      <!-- Analysis & Suggestions Column -->
+      <div class="col-md-9 p-4">
+        <div class="row h-100">
+          <div class="col-md-6 border-end">
+            <h6 class="fw-bold text-dark mb-3"><i
+                class="fa-solid fa-magnifying-glass-chart me-2 text-primary"></i>Prediction Analysis</h6>
+            <div id="causeAnalysis" class="text-muted small">
+              <p class="mb-2">Analyzing historical trends and stress factors...</p>
+            </div>
+          </div>
+          <div class="col-md-6 ps-md-4">
+            <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>Optimization
+              Suggestions</h6>
+            <ul id="suggestionList" class="list-unstyled small text-muted m-0">
+              <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>Ensure consistent feed quality.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. INPUT FORM & CHART ROW -->
+<div class="row g-4 mb-4">
+  <!-- Input Form -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm h-100" style="border-radius: 24px;">
+      <div class="card-header bg-white py-4 border-0 px-4">
+        <h6 class="m-0 fw-bold text-dark"><i class="fa-solid fa-plus-circle me-2 text-success"></i>Add Daily Record</h6>
+      </div>
+      <div class="card-body p-4">
+        <form id="eggForm">
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold">Date</label>
+            <input type="date" class="form-control bg-light border-0" name="date" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold">Total Eggs</label>
+            <input type="number" class="form-control bg-light border-0" name="eggs" min="0" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small fw-bold">Broken Eggs</label>
+            <input type="number" class="form-control bg-light border-0" name="broken" min="0" required>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold">Save Record</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Production Chart -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm h-100" style="border-radius: 24px;">
+      <div class="card-header bg-white py-4 border-0 px-4">
+        <h6 class="m-0 fw-bold text-dark">Daily Production Trend</h6>
+      </div>
+      <div class="card-body pt-0 px-4 pb-4">
+        <canvas id="dailyChart" height="250"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. RECENT RECORDS TABLE -->
+<div class="card border-0 shadow-sm" style="border-radius: 24px;">
+  <div class="card-header bg-white py-4 border-0 px-4">
+    <h6 class="m-0 fw-bold text-dark">Production History</h6>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th class="ps-4">Date</th>
+            <th class="text-center">Total Eggs</th>
+            <th class="text-center">Broken</th>
+            <th class="text-center">Stress Level</th>
+            <th>Suggestion</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in data %}
+          <tr>
+            <td class="ps-4 text-muted small">{{ row.date }}</td>
+            <td class="text-center fw-bold">{{ row.total_eggs }}</td>
+            <td class="text-center text-danger">{{ row.broken_eggs }}</td>
+            <td class="text-center">
+              {% if row.avg_stress_label == "High" %}
+              <span class="badge bg-danger-subtle text-danger rounded-pill">High</span>
+              {% elif row.avg_stress_label == "Mild" %}
+              <span class="badge bg-warning-subtle text-warning rounded-pill">Mild</span>
+              {% else %}
+              <span class="badge bg-success-subtle text-success rounded-pill">Normal</span>
+              {% endif %}
+            </td>
+            <td class="small text-muted">
+              {% if row.avg_stress_label == "High" %}
+              Reduce coop heat exposure
+              {% elif row.avg_stress_label == "Mild" %}
+              Maintain ventilation
+              {% else %}
+              Stable productivity
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Pass data from Jinja
+  const eggData = {{ data | tojson | safe }};
+
+  document.addEventListener("DOMContentLoaded", () => {
+
+    // 1. Process Data for UI
+    if (eggData.length > 0) {
+      // Sort by date descending (assuming data is already sorted, but just in case)
+      // Actually data passed from backend usually sorted desc in recent queries, but let's check.
+      // If it's from 'fetch_egg_data', it might be sorted. Let's assume index 0 is latest.
+
+      const latest = eggData[0];
+      const prev = eggData.length > 1 ? eggData[1] : latest;
+
+      // Update Cards
+      document.getElementById("todayEggs").textContent = latest.total_eggs;
+      document.getElementById("todayDate").textContent = latest.date;
+
+      const brokenPct = latest.total_eggs > 0 ? (latest.broken_eggs / latest.total_eggs * 100).toFixed(1) : 0;
+      document.getElementById("brokenRate").textContent = brokenPct;
+      if (brokenPct > 5) {
+        document.getElementById("brokenBadge").className = "badge bg-danger-subtle text-danger rounded-pill px-3 py-1 small";
+        document.getElementById("brokenBadge").textContent = "High Loss";
+      } else {
+        document.getElementById("brokenBadge").className = "badge bg-success-subtle text-success rounded-pill px-3 py-1 small";
+        document.getElementById("brokenBadge").textContent = "Acceptable";
+      }
+
+      // Calculate Weekly Total (approx last 7 entries)
+      let weekly = 0;
+      eggData.slice(0, 7).forEach(r => weekly += r.total_eggs);
+      document.getElementById("weeklyTotal").textContent = weekly;
+
+      // 2. Prediction Logic
+      // Logic: If stress was High/Mild yesterday/today, predict decrease.
+      // If trend is increasing and stress is low, predict increase.
+
+      const predictVal = document.getElementById("predictVal");
+      const predictBadge = document.getElementById("predictBadge");
+      const overallStatus = document.getElementById("overallStatus");
+      const statusIconContainer = document.getElementById("statusIconContainer");
+      const causeAnalysis = document.getElementById("causeAnalysis");
+      const suggestionList = document.getElementById("suggestionList");
+
+      let prediction = "Stable";
+      let confidence = "High";
+      let causes = [];
+      let suggestions = [];
+      let icon = "➡️";
+      let statusClass = "text-primary";
+
+      // Check Stress Impact
+      if (latest.avg_stress_label === "High" || prev.avg_stress_label === "High") {
+        prediction = "Decrease";
+        icon = "↘️";
+        statusClass = "text-danger";
+        causes.push("<strong>High Stress Detected:</strong> Recent environmental or behavioral stress markers suggest a potential drop in production.");
+        suggestions.push("Immediate intervention required to reduce flock stress.");
+      } else if (latest.avg_stress_label === "Mild") {
+        prediction = "Slight Drop";
+        icon = "↘️";
+        statusClass = "text-warning";
+        causes.push("<strong>Mild Stress:</strong> Minor disturbances may impact laying efficiency.");
+        suggestions.push("Monitor ventilation and water supply.");
+      } else {
+        // Check Trend
+        const trend = latest.total_eggs - prev.total_eggs;
+        if (trend > 0) {
+          prediction = "Increase";
+          icon = "↗️";
+          statusClass = "text-success";
+          causes.push("<strong>Positive Trend:</strong> Production is on an upward trajectory with stable environmental conditions.");
+          suggestions.push("Maintain current optimal conditions.");
+        } else if (trend < 0) {
+          prediction = "Stable/Recovering";
+          icon = "➡️";
+          statusClass = "text-info";
+          causes.push("<strong>Stabilization:</strong> Following a recent dip, conditions are now normal, expecting stabilization.");
+        } else {
+          causes.push("<strong>Stable Conditions:</strong> No significant stress factors or trend deviations detected.");
+        }
+      }
+
+      predictVal.textContent = prediction;
+      predictBadge.textContent = latest.avg_stress_label === "Normal" ? "Favorable" : "Risk";
+      predictBadge.className = latest.avg_stress_label === "Normal" ? "badge bg-success-subtle text-success rounded-pill px-2 py-1 small" : "badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small";
+
+      overallStatus.textContent = "Forecast: " + prediction;
+      overallStatus.className = "fw-bold mb-1 " + statusClass;
+      statusIconContainer.textContent = icon;
+
+      causeAnalysis.innerHTML = causes.map(c => `<p class="mb-2">${c}</p>`).join("");
+      suggestionList.innerHTML = suggestions.map(s => `<li class="mb-2"><i class="fa-solid fa-angle-right text-primary me-2"></i>${s}</li>`).join("");
+
+
+      // 3. Chart
+      const chartData = eggData.slice(0, 14).reverse(); // Last 14 days
+      const labels = chartData.map(r => r.date);
+      const values = chartData.map(r => r.total_eggs);
+
+      new Chart(document.getElementById("dailyChart"), {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Daily Eggs",
+            data: values,
+            backgroundColor: "#ffa726",
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true }
+          }
+        }
+      });
+    }
+
+    // 4. Form Submission
+    document.getElementById("eggForm").addEventListener("submit", e => {
+      e.preventDefault();
+      const formData = Object.fromEntries(new FormData(e.target).entries());
+      fetch("/api/add_egg_entry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      })
+        .then(res => res.json())
+        .then(d => {
+          alert(`Saved! Avg stress: ${d.avg_stress_label}`);
+          location.reload();
+        });
+    });
+
+  });
+</script>
+{% endblock %}

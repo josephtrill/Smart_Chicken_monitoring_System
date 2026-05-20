@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- jQuery MUST be loaded before DataTables -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div class="container-fluid py-4">
+
+  <!-- Header & Toolbar -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+      <h3 class="fw-bold text-dark mb-1">
+        <i class="fa-solid fa-clock-rotate-left me-2 text-secondary"></i> System History
+      </h3>
+      <p class="text-muted small mb-0">Comprehensive timeline of all system events and anomalies.</p>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="d-flex gap-2">
+      <div class="btn-group shadow-sm" role="group">
+        <button type="button" class="btn btn-white border filter-btn active fw-bold small" data-type="All">All</button>
+        <button type="button" class="btn btn-white border filter-btn small" data-type="Sensor">Sensor</button>
+        <button type="button" class="btn btn-white border filter-btn small" data-type="Audio">Audio</button>
+        <button type="button" class="btn btn-white border filter-btn small" data-type="Vision">Vision</button>
+        <button type="button" class="btn btn-white border filter-btn small" data-type="Fusion">Fusion</button>
+        <button type="button" class="btn btn-white border filter-btn small" data-type="Tracking">Tracking</button>
+      </div>
+
+      <div class="btn-group shadow-sm" role="group">
+        <button id="exportCSV" class="btn btn-light border text-primary small" title="Export CSV">
+          <i class="fa-solid fa-file-csv"></i>
+        </button>
+        <button id="exportPDF" class="btn btn-light border text-danger small" title="Export PDF">
+          <i class="fa-solid fa-file-pdf"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY TABLE CONTAINER -->
+  <div class="card border-0 shadow-sm" style="border-radius: 24px; overflow: hidden;">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table id="historyTable" class="table table-hover align-middle w-100 mb-0" style="border-collapse: collapse;">
+          <thead class="bg-light text-secondary small text-uppercase">
+            <tr>
+              <th class="py-3 ps-4 border-bottom-0">Timestamp</th>
+              <th class="py-3 border-bottom-0">Type</th>
+              <th class="py-3 border-bottom-0">Description</th>
+              <th class="py-3 border-bottom-0">Severity</th>
+            </tr>
+          </thead>
+          <tbody class="border-top-0">
+            <!-- DataTables will populate this -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- DataTables + Buttons CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css">
+
+<!-- Custom Styles for DataTables integration -->
+<style>
+  .dataTables_wrapper .dataTables_filter input {
+    border-radius: 20px;
+    padding: 5px 15px;
+    border: 1px solid #dee2e6;
+    margin-left: 10px;
+  }
+
+  .dataTables_wrapper .dataTables_length select {
+    border-radius: 20px;
+    padding: 5px 30px 5px 10px;
+    border: 1px solid #dee2e6;
+  }
+
+  .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    border-radius: 50%;
+  }
+
+  .page-link {
+    border-radius: 50%;
+    margin: 0 3px;
+    color: #6c757d;
+    border: none;
+  }
+
+  .page-link:hover {
+    background-color: #e9ecef;
+    color: #0d6efd;
+  }
+
+  .btn-white {
+    background-color: #fff;
+    color: #6c757d;
+  }
+
+  .btn-white:hover,
+  .btn-white.active {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+    border-color: #dee2e6;
+  }
+</style>
+
+<!-- DataTables + Buttons JS -->
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+
+    const table = $("#historyTable").DataTable({
+      ajax: {
+        url: "/api/history_data",
+        dataSrc: "data"
+      },
+      columns: [
+        {
+          data: "timestamp",
+          className: "ps-4 text-muted small fw-bold"
+        },
+        {
+          data: "event_type",
+          render: function (data) {
+            let badgeClass = "bg-secondary-subtle text-secondary";
+            let icon = "fa-circle";
+
+            if (data === "Sensor") { badgeClass = "bg-success-subtle text-success"; icon = "fa-leaf"; }
+            else if (data === "Audio") { badgeClass = "bg-info-subtle text-info"; icon = "fa-volume-high"; }
+            else if (data === "Vision") { badgeClass = "bg-warning-subtle text-warning"; icon = "fa-eye"; }
+            else if (data === "Fusion") { badgeClass = "bg-primary-subtle text-primary"; icon = "fa-layer-group"; }
+            else if (data === "Tracking") { badgeClass = "bg-dark-subtle text-dark"; icon = "fa-crosshairs"; }
+
+            return `<span class="badge ${badgeClass} rounded-pill px-3 py-2"><i class="fa-solid ${icon} me-2"></i>${data}</span>`;
+          }
+        },
+        {
+          data: "description",
+          className: "text-dark"
+        },
+        {
+          data: "severity",
+          render: function (data) {
+            const color = data === "Danger" ? "danger"
+              : data === "Warning" ? "warning"
+                : "success";
+            const icon = data === "Danger" ? "fa-circle-exclamation"
+              : data === "Warning" ? "fa-triangle-exclamation"
+                : "fa-check-circle";
+
+            return `<span class="text-${color} fw-bold small"><i class="fa-solid ${icon} me-1"></i>${data}</span>`;
+          }
+        }
+      ],
+      order: [[0, "desc"]],
+      pageLength: 15,
+      dom: "Bfrtip", // Buttons, Filter, pRocessing, Table, Info, Pagination
+      buttons: [
+        { extend: "csv", className: "d-none", title: "Event_History" },
+        { extend: "pdf", className: "d-none", title: "Event_History" }
+      ],
+      language: {
+        search: "_INPUT_",
+        searchPlaceholder: "Search events..."
+      }
+    });
+
+
+    // Filters
+    $(".filter-btn").on("click", function () {
+      $(".filter-btn").removeClass("active");
+      $(this).addClass("active");
+
+      const type = $(this).data("type");
+      if (type === "All") {
+        table.column(1).search("").draw();
+      } else {
+        // Exact match for the type column
+        table.column(1).search("^" + type + "$", true, false).draw();
+      }
+    });
+
+    // Export buttons
+    $("#exportCSV").on("click", function () {
+      table.button(".buttons-csv").trigger();
+    });
+
+    $("#exportPDF").on("click", function () {
+      table.button(".buttons-pdf").trigger();
+    });
+
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- 1. SUMMARY CARD ROW (4 CARDS) -->
+<div class="row g-4 mb-4">
+  <!-- Card 1: RMS -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #e3f2fd);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">RMS (Energy)</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="rmsVal">--</span>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-primary d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-wave-square"></i>
+        </div>
+      </div>
+      <div class="mt-3 d-flex align-items-center gap-2">
+        <span class="badge bg-primary-subtle text-primary rounded-pill px-2 py-1 small" id="rmsBadge">
+          <i class="fa-solid fa-arrow-trend-up me-1"></i><span id="rmsTrend">--</span>
+        </span>
+        <small class="text-muted" id="rmsStatus">Normal</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 2: Peak -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #fff3e0);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Peak Amplitude</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="peakVal">--</span>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-warning d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+      </div>
+      <div class="mt-3 d-flex align-items-center gap-2">
+        <span class="badge bg-warning-subtle text-warning rounded-pill px-2 py-1 small" id="peakBadge">
+          <i class="fa-solid fa-arrow-trend-up me-1"></i><span id="peakTrend">--</span>
+        </span>
+        <small class="text-muted" id="peakStatus">Stable</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 3: Audio Level (dB) -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #f3e5f5);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Audio Level</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="dbVal">--</span><small class="fs-6 text-muted">dB</small>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-info d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-volume-high"></i>
+        </div>
+      </div>
+      <div class="mt-3">
+        <span class="badge bg-info-subtle text-info rounded-pill px-3 py-1 small" id="dbBadge">Quiet</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card 4: Anomaly Score -->
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm p-3 h-100"
+      style="border-radius: 20px; background: linear-gradient(145deg, #ffffff, #ffebee);">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h6 class="text-muted text-uppercase small fw-bold mb-1">Anomaly Score</h6>
+          <h2 class="fw-bold text-dark mb-0">
+            <span id="mseVal">--</span>
+          </h2>
+        </div>
+        <div class="bg-white rounded-circle shadow-sm text-danger d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+      </div>
+      <div class="mt-3 d-flex align-items-center gap-2">
+        <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small" id="mseBadge">
+          Normal
+        </span>
+        <small class="text-muted" id="mseRating">Low Risk</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. AUDIO STATUS + SUGGESTION BOX -->
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 24px; overflow: hidden;">
+  <div class="card-body p-0">
+    <div class="row g-0">
+      <!-- Status Column -->
+      <div
+        class="col-md-3 bg-light d-flex flex-column align-items-center justify-content-center p-4 text-center border-end">
+        <div id="statusIconContainer" class="mb-3" style="font-size: 3rem;">
+          🟢
+        </div>
+        <h5 class="fw-bold mb-1" id="overallStatus">Normal</h5>
+        <p class="text-muted small m-0">Current Audio State</p>
+      </div>
+
+      <!-- Analysis & Suggestions Column -->
+      <div class="col-md-9 p-4">
+        <div class="row h-100">
+          <div class="col-md-6 border-end">
+            <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-magnifying-glass-chart me-2 text-primary"></i>Cause
+              Analysis</h6>
+            <div id="causeAnalysis" class="text-muted small">
+              <p class="mb-2">System is analyzing audio patterns...</p>
+            </div>
+          </div>
+          <div class="col-md-6 ps-md-4">
+            <h6 class="fw-bold text-dark mb-3"><i class="fa-solid fa-lightbulb me-2 text-warning"></i>Suggestions</h6>
+            <ul id="suggestionList" class="list-unstyled small text-muted m-0">
+              <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>No actions required at this time.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. AUDIO SPECTROGRAM (BAR CHART) -->
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 24px;">
+  <div class="card-header bg-white py-4 border-0 px-4">
+    <h6 class="m-0 fw-bold text-dark">Audio Spectrogram (Recent dB Levels)</h6>
+  </div>
+  <div class="card-body pt-0 px-4 pb-4">
+    <canvas id="audioChart" height="80"></canvas>
+  </div>
+</div>
+
+<!-- 4. RECENT READINGS (SHORT TABLE) -->
+<div class="card border-0 shadow-sm" style="border-radius: 24px;">
+  <div class="card-header bg-white py-4 border-0 px-4">
+    <h6 class="m-0 fw-bold text-dark">Recent Readings (Latest 10)</h6>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light">
+          <tr>
+            <th class="ps-4">Timestamp</th>
+            <th>RMS</th>
+            <th>Peak</th>
+            <th>Level (dB)</th>
+            <th>MSE Score</th>
+            <th>Status</th>
+            <th>Audio</th>
+          </tr>
+        </thead>
+        <tbody id="audioTableBody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  let audioChartInstance = null;
+
+  async function loadAudioData() {
+    const apiUrl = `/api/recent/audio/1?offset=0`;
+
+    // Elements
+    const rmsVal = document.getElementById("rmsVal");
+    const peakVal = document.getElementById("peakVal");
+    const dbVal = document.getElementById("dbVal");
+    const mseVal = document.getElementById("mseVal");
+
+    const rmsBadge = document.getElementById("rmsBadge");
+    const peakBadge = document.getElementById("peakBadge");
+    const dbBadge = document.getElementById("dbBadge");
+    const mseBadge = document.getElementById("mseBadge");
+
+    const rmsStatus = document.getElementById("rmsStatus");
+    const peakStatus = document.getElementById("peakStatus");
+    const mseRating = document.getElementById("mseRating");
+
+    const overallStatus = document.getElementById("overallStatus");
+    const statusIconContainer = document.getElementById("statusIconContainer");
+    const causeAnalysis = document.getElementById("causeAnalysis");
+    const suggestionList = document.getElementById("suggestionList");
+
+    const tbody = document.getElementById("audioTableBody");
+
+    try {
+      const res = await fetch(apiUrl);
+      const data = await res.json();
+      const history = data || []; // api/recent/audio returns a list directly
+
+      if (history.length > 0) {
+        const latest = history[0];
+        const prev = history.length > 1 ? history[1] : latest;
+
+        // 1. Update Cards
+        const rms = latest.rms || 0;
+        const peak = latest.peak || 0;
+        const db = latest.audio_db || 0;
+        const mse = latest.mse_score || 0;
+
+        // RMS
+        rmsVal.textContent = rms.toFixed(2);
+        const rmsDiff = rms - (prev.rms || 0);
+        document.getElementById("rmsTrend").textContent = rmsDiff >= 0 ? `+${rmsDiff.toFixed(2)}` : rmsDiff.toFixed(2);
+        rmsBadge.className = rmsDiff > 0 ? "badge bg-primary-subtle text-primary rounded-pill px-2 py-1 small" : "badge bg-info-subtle text-info rounded-pill px-2 py-1 small";
+        rmsStatus.textContent = rms > 100 ? "High Energy" : "Normal";
+
+        // Peak
+        peakVal.textContent = peak.toFixed(0);
+        const peakDiff = peak - (prev.peak || 0);
+        document.getElementById("peakTrend").textContent = peakDiff >= 0 ? `+${peakDiff.toFixed(0)}` : peakDiff.toFixed(0);
+        peakStatus.textContent = peak > 1000 ? "Sudden Spike" : "Stable";
+
+        // dB
+        dbVal.textContent = db.toFixed(1);
+        if (db > 80) {
+          dbBadge.className = "badge bg-danger-subtle text-danger rounded-pill px-3 py-1 small";
+          dbBadge.textContent = "Very Loud";
+        } else if (db > 60) {
+          dbBadge.className = "badge bg-warning-subtle text-warning rounded-pill px-3 py-1 small";
+          dbBadge.textContent = "Moderate";
+        } else {
+          dbBadge.className = "badge bg-success-subtle text-success rounded-pill px-3 py-1 small";
+          dbBadge.textContent = "Quiet";
+        }
+
+        // MSE
+        mseVal.textContent = mse.toFixed(3);
+        if (latest.is_anomaly) {
+          mseBadge.className = "badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small";
+          mseBadge.textContent = "Anomaly";
+          mseRating.textContent = "Unusual Pattern";
+        } else {
+          mseBadge.className = "badge bg-success-subtle text-success rounded-pill px-2 py-1 small";
+          mseBadge.textContent = "Normal";
+          mseRating.textContent = "Low Risk";
+        }
+
+        // 2. Status & Analysis Logic
+        let status = "Normal";
+        let statusIcon = "🟢";
+        let causes = [];
+        let suggestions = [];
+
+        // Thresholds
+        const DB_HIGH = 80;
+        const PEAK_HIGH = 1000;
+        const MSE_HIGH = 0.5;
+
+        if (latest.is_anomaly || db > DB_HIGH || peak > PEAK_HIGH) {
+          if (latest.is_anomaly || (db > DB_HIGH && peak > PEAK_HIGH)) {
+            status = "Severe Anomaly";
+            statusIcon = "🔥";
+            overallStatus.className = "fw-bold mb-1 text-danger";
+          } else if (db > DB_HIGH) {
+            status = "High Noise";
+            statusIcon = "🔴";
+            overallStatus.className = "fw-bold mb-1 text-danger";
+          } else {
+            status = "Mild Disturbance";
+            statusIcon = "🟡";
+            overallStatus.className = "fw-bold mb-1 text-warning";
+          }
+        } else {
+          overallStatus.className = "fw-bold mb-1 text-success";
+        }
+
+        overallStatus.textContent = status;
+        statusIconContainer.textContent = statusIcon;
+
+        // Cause Analysis & Suggestions
+        if (db > DB_HIGH) {
+          causes.push(`<strong>High Noise Level (${db.toFixed(1)} dB):</strong> Loud environment can cause stress and panic in chickens.`);
+          suggestions.push("Check for machinery malfunction.");
+          suggestions.push("Investigate potential predators.");
+        }
+        if (peak > PEAK_HIGH) {
+          causes.push(`<strong>Sudden Peak (${peak.toFixed(0)}):</strong> Sharp loud noises detected, indicating sudden disturbance.`);
+          suggestions.push("Check for dropped objects or banging.");
+        }
+        if (latest.is_anomaly) {
+          causes.push(`<strong>Unusual Audio Pattern (MSE ${mse.toFixed(3)}):</strong> The AI detected sounds that deviate from the normal coop soundscape.`);
+          suggestions.push("Listen to the recording to identify the source.");
+          suggestions.push("Monitor flock behavior for distress.");
+        }
+
+        if (causes.length === 0) {
+          causes.push("Audio levels are within normal range.");
+          suggestions.push("Maintain quiet environment.");
+          suggestions.push("Routine monitoring.");
+        }
+
+        causeAnalysis.innerHTML = causes.map(c => `<p class="mb-2">${c}</p>`).join("");
+        suggestionList.innerHTML = suggestions.map(s => `<li class="mb-2"><i class="fa-solid fa-angle-right text-primary me-2"></i>${s}</li>`).join("");
+
+        // 3. Update Table (Limit 10)
+        tbody.innerHTML = "";
+        history.slice(0, 10).forEach((r) => {
+          const rowStatus = r.is_anomaly ? '<span class="badge bg-danger-subtle text-danger">Anomaly</span>' : '<span class="badge bg-success-subtle text-success">Normal</span>';
+          const playBtn = r.file_path ?
+            `<button class="btn btn-sm btn-outline-primary rounded-circle" onclick="playAudio('${r.file_path}')"><i class="fa-solid fa-play"></i></button>` :
+            '<span class="text-muted">-</span>';
+
+          const row = `
+            <tr>
+              <td class="ps-4 text-muted small">${r.timestamp}</td>
+              <td class="fw-bold">${r.rms?.toFixed(2)}</td>
+              <td>${r.peak?.toFixed(0)}</td>
+              <td>${r.audio_db?.toFixed(1)}</td>
+              <td>${r.mse_score?.toFixed(4)}</td>
+              <td>${rowStatus}</td>
+              <td>${playBtn}</td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+
+        // 4. Update Chart (Bar Spectrogram style)
+        const chartData = history.slice(0, 30); // Show 30 bars
+        const labels = chartData.map(r => r.timestamp.slice(11, 19)).reverse();
+        const dbs = chartData.map(r => r.audio_db).reverse();
+
+        const ctx = document.getElementById("audioChart").getContext("2d");
+        if (audioChartInstance) audioChartInstance.destroy();
+
+        audioChartInstance = new Chart(ctx, {
+          type: "bar",
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Audio Level (dB)",
+                data: dbs,
+                backgroundColor: dbs.map(v => v > 80 ? "#ef5350" : (v > 60 ? "#ffa726" : "#42a5f5")),
+                borderRadius: 4,
+                barPercentage: 0.6
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                titleColor: '#000',
+                bodyColor: '#666',
+                borderColor: '#ddd',
+                borderWidth: 1
+              }
+            },
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                grid: { borderDash: [2, 4] },
+                beginAtZero: true,
+                suggestedMax: 100
+              }
+            }
+          }
+        });
+      }
+
+    } catch (err) {
+      console.error("Error loading audio data:", err);
+    }
+  }
+
+  window.playAudio = (file) => {
+    const audio = new Audio(`/uploads/audio/${file}`);
+    audio.play();
+  };
+
+  loadAudioData();
+  setInterval(loadAudioData, 5000);
+</script>
+{% endblock %}

@@ -1,0 +1,108 @@
+Generating Confusion Matrices for Defense...
+
+=== Environmental Model Evaluation ===
+Comparing Stored Predictions (Old) vs Refined Thresholds (New/Ground Truth)
+Threshold Used: 600.0
+------------------------------
+Confusion Matrix:
+[[80 30]
+ [ 0 20]]
+ [TN, FP]
+ [FN, TP]
+------------------------------
+Accuracy:  0.7692
+Precision: 0.4000
+Recall:    1.0000
+F1 Score:  0.5714
+
+Classification Report:
+              precision    recall  f1-score   support
+
+      Normal       1.00      0.73      0.84       110
+     Anomaly       0.40      1.00      0.57        20
+
+    accuracy                           0.77       130
+   macro avg       0.70      0.86      0.71       130
+weighted avg       0.91      0.77      0.80       130
+
+NOTE: 30 False Positives detected (Old model flagged Normal as Anomaly).
+
+=== Audio Model Evaluation ===
+Comparing Stored Predictions (Old) vs Refined Thresholds (New/Ground Truth)
+Threshold Used: 0.5
+------------------------------
+Confusion Matrix:
+[[140  40]
+ [  0  40]]
+ [TN, FP]
+ [FN, TP]
+------------------------------
+Accuracy:  0.8182
+Precision: 0.5000
+Recall:    1.0000
+F1 Score:  0.6667
+
+Classification Report:
+              precision    recall  f1-score   support
+
+      Normal       1.00      0.78      0.88       180
+     Anomaly       0.50      1.00      0.67        40
+
+    accuracy                           0.82       220
+   macro avg       0.75      0.89      0.77       220
+weighted avg       0.91      0.82      0.84       220
+
+NOTE: 40 False Positives detected (Old model flagged Normal as Anomaly).
+
+=== Vision Model Evaluation ===
+Comparing Stored Predictions (Old) vs Refined Thresholds (New/Ground Truth)
+Threshold Used: 200.0
+------------------------------
+Confusion Matrix:
+[[134  40]
+ [  0  30]]
+ [TN, FP]
+ [FN, TP]
+------------------------------
+Accuracy:  0.8039
+Precision: 0.4286
+Recall:    1.0000
+F1 Score:  0.6000
+
+Classification Report:
+              precision    recall  f1-score   support
+
+      Normal       1.00      0.77      0.87       174
+     Anomaly       0.43      1.00      0.60        30
+
+    accuracy                           0.80       204
+   macro avg       0.71      0.89      0.74       204
+weighted avg       0.92      0.80      0.83       204
+
+NOTE: 40 False Positives detected (Old model flagged Normal as Anomaly).
+
+=== Fusion Model Evaluation ===
+Comparing Stored Predictions (Old) vs Refined Logic (New/Ground Truth)
+Logic: High Stress requires ALL 3 modalities > New Thresholds
+------------------------------
+Confusion Matrix:
+[[78  0]
+ [ 0  0]]
+ [TN, FP]
+ [FN, TP]
+------------------------------
+Accuracy:  1.0000
+Precision: 0.0000
+Recall:    0.0000
+F1 Score:  0.0000
+
+Classification Report:
+              precision    recall  f1-score   support
+
+      Normal       1.00      1.00      1.00        78
+ High Stress       0.00      0.00      0.00         0
+
+   micro avg       1.00      1.00      1.00        78
+   macro avg       0.50      0.50      0.50        78
+weighted avg       1.00      1.00      1.00        78
+

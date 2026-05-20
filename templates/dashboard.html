@@ -1,0 +1,418 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+
+  <!-- 🔶 SUMMARY CARDS (Restored & Enhanced) -->
+  <div class="row g-4 mb-4">
+    <!-- 1. Overall Stress (Fusion) -->
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100 rounded-4 bg-white">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="p-3 rounded-circle bg-light text-primary d-flex align-items-center justify-content-center"
+            style="width: 60px; height: 60px;">
+            <i class="fa-solid fa-heart-pulse fs-4"></i>
+          </div>
+          <div>
+            <h6 class="text-muted text-uppercase fw-bold small mb-1">Overall Stress</h6>
+            <h4 class="fw-bold mb-0 text-dark" id="summaryStress">--</h4>
+            <small class="text-muted" id="summaryStressConf">System Normal</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 2. Behavior -->
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100 rounded-4 bg-white">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="p-3 rounded-circle bg-light text-info d-flex align-items-center justify-content-center"
+            style="width: 60px; height: 60px;">
+            <i class="fa-solid fa-eye fs-4"></i>
+          </div>
+          <div>
+            <h6 class="text-muted text-uppercase fw-bold small mb-1">Behavior</h6>
+            <h4 class="fw-bold mb-0 text-dark" id="summaryBehavior">--</h4>
+            <small class="text-muted" id="summaryBehaviorConf">Conf: --%</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 3. Environment -->
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100 rounded-4 bg-white">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="p-3 rounded-circle bg-light text-success d-flex align-items-center justify-content-center"
+            style="width: 60px; height: 60px;">
+            <i class="fa-solid fa-temperature-three-quarters fs-4"></i>
+          </div>
+          <div>
+            <h6 class="text-muted text-uppercase fw-bold small mb-1">Environment</h6>
+            <h4 class="fw-bold mb-0 text-dark" id="summaryEnv">--</h4>
+            <small class="text-muted" id="summaryEnvScore">Score: --</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 4. Audio -->
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm h-100 rounded-4 bg-white">
+        <div class="card-body d-flex align-items-center gap-3">
+          <div class="p-3 rounded-circle bg-light text-warning d-flex align-items-center justify-content-center"
+            style="width: 60px; height: 60px;">
+            <i class="fa-solid fa-microphone-lines fs-4"></i>
+          </div>
+          <div>
+            <h6 class="text-muted text-uppercase fw-bold small mb-1">Audio</h6>
+            <h4 class="fw-bold mb-0 text-dark" id="summaryAudio">--</h4>
+            <small class="text-muted" id="summaryAudioDB">-- dB</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔶 MIDDLE SECTION: 60/40 Split -->
+  <div class="row g-4 mb-4">
+
+    <!-- LEFT (60%): Live Vision Panel -->
+    <div class="col-lg-7">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+        <div class="card-header bg-white border-0 py-3 px-4 d-flex justify-content-between align-items-center">
+          <h6 class="fw-bold m-0"><i class="fa-solid fa-video text-primary me-2"></i>Live Vision Feed</h6>
+          <span class="badge bg-danger-subtle text-danger rounded-pill px-3"><i
+              class="fa-solid fa-circle fa-fade me-1"></i> LIVE</span>
+        </div>
+        <div class="position-relative bg-black flex-grow-1" style="min-height: 450px;">
+          <img src="{{ url_for('vision_stream') }}" class="w-100 h-100 object-fit-cover" alt="Live Feed"
+            onerror="this.style.display='none'; document.getElementById('camPlaceholder').style.display='flex';">
+          <div id="camPlaceholder"
+            class="position-absolute top-0 start-0 w-100 h-100 d-none align-items-center justify-content-center flex-column text-white">
+            <i class="fa-solid fa-video-slash fs-1 mb-3 opacity-50"></i>
+            <p class="mb-0 opacity-75">Camera Offline</p>
+          </div>
+          <!-- Overlay Info -->
+          <div
+            class="position-absolute bottom-0 start-0 w-100 p-3 bg-gradient-to-t from-black/80 to-transparent text-white">
+            <div class="d-flex justify-content-between align-items-end">
+              <div>
+                <h5 class="fw-bold mb-1" id="camBehavior">Detecting...</h5>
+                <small class="opacity-75" id="camConf">Confidence: --%</small>
+              </div>
+              <div class="text-end">
+                <small class="d-block opacity-75 mb-1">History</small>
+                <div class="d-flex gap-1" id="miniBehaviorHistory">
+                  <!-- Mini dots injected here -->
+                  <span class="badge bg-white/20 rounded-pill" style="width: 10px; height: 10px; padding: 0;"></span>
+                  <span class="badge bg-white/20 rounded-pill" style="width: 10px; height: 10px; padding: 0;"></span>
+                  <span class="badge bg-white/20 rounded-pill" style="width: 10px; height: 10px; padding: 0;"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT (40%): Stacked Mini Panels -->
+    <div class="col-lg-5">
+      <div class="d-flex flex-column gap-4 h-100">
+
+        <!-- A. Environment Mini Panel -->
+        <div class="card border-0 shadow-sm rounded-4 flex-grow-1">
+          <div class="card-body p-4 d-flex flex-column justify-content-center">
+            <h6 class="fw-bold text-muted text-uppercase small mb-3"><i
+                class="fa-solid fa-seedling me-2"></i>Environment Status</h6>
+            <div class="row g-3 text-center">
+              <div class="col-4">
+                <h4 class="fw-bold text-dark mb-0"><span id="miniTemp">--</span>°C</h4>
+                <small class="text-muted">Temp</small>
+                <div class="progress mt-2" style="height: 4px;">
+                  <div class="progress-bar bg-warning" id="barTemp" style="width: 0%"></div>
+                </div>
+              </div>
+              <div class="col-4">
+                <h4 class="fw-bold text-dark mb-0"><span id="miniHumid">--</span>%</h4>
+                <small class="text-muted">Humidity</small>
+                <div class="progress mt-2" style="height: 4px;">
+                  <div class="progress-bar bg-info" id="barHumid" style="width: 0%"></div>
+                </div>
+              </div>
+              <div class="col-4">
+                <h4 class="fw-bold text-dark mb-0"><span id="miniGas">--</span></h4>
+                <small class="text-muted">Gas (ppm)</small>
+                <div class="progress mt-2" style="height: 4px;">
+                  <div class="progress-bar bg-secondary" id="barGas" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 d-flex justify-content-between align-items-center bg-light p-3 rounded-3">
+              <span class="text-muted small">Stress Score</span>
+              <span class="fw-bold text-dark" id="miniEnvScore">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- B. Audio Mini Panel -->
+        <div class="card border-0 shadow-sm rounded-4 flex-grow-1">
+          <div class="card-body p-4 d-flex flex-column justify-content-center">
+            <h6 class="fw-bold text-muted text-uppercase small mb-3"><i class="fa-solid fa-music me-2"></i>Audio Status
+            </h6>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <h5 class="fw-bold mb-0" id="miniAudioClass">Normal</h5>
+                <small class="text-muted">Classification</small>
+              </div>
+              <i class="fa-solid fa-wave-square fs-1 text-muted opacity-25"></i>
+            </div>
+            <div class="row g-2 small text-muted">
+              <div class="col-4">RMS: <span class="fw-bold text-dark" id="miniRMS">--</span></div>
+              <div class="col-4">Peak: <span class="fw-bold text-dark" id="miniPeak">--</span></div>
+              <div class="col-4">dB: <span class="fw-bold text-dark" id="miniDB">--</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔶 BOTTOM SECTION: Charts (Full Width) -->
+  <div class="row g-4">
+
+    <!-- Chart 1: Environmental Line Chart -->
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white border-0 py-3 px-4">
+          <h6 class="fw-bold m-0"><i class="fa-solid fa-chart-area text-success me-2"></i>Live Environment Trends</h6>
+        </div>
+        <div class="card-body p-4">
+          <canvas id="envLiveChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart 2: Audio Bar Chart -->
+    <div class="col-md-6">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-white border-0 py-3 px-4">
+          <h6 class="fw-bold m-0"><i class="fa-solid fa-chart-bar text-warning me-2"></i>Live Audio Levels</h6>
+        </div>
+        <div class="card-body p-4">
+          <canvas id="audioLiveChart" height="250"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  Chart.defaults.font.family = "'Poppins', sans-serif";
+  Chart.defaults.color = '#64748b';
+
+  // 1. Env Live Chart (Line)
+  const envCtx = document.getElementById('envLiveChart').getContext('2d');
+  const envLiveChart = new Chart(envCtx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
+        { label: 'Temp (°C)', data: [], borderColor: '#f59e0b', tension: 0.4, pointRadius: 0, borderWidth: 2 },
+        { label: 'Humidity (%)', data: [], borderColor: '#3b82f6', tension: 0.4, pointRadius: 0, borderWidth: 2 },
+        { label: 'Gas (ppm)', data: [], borderColor: '#64748b', tension: 0.4, pointRadius: 0, borderWidth: 2, yAxisID: 'y1' }
+      ]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 0 },
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'top' } },
+      scales: {
+        x: { display: false },
+        y: { beginAtZero: true, title: { display: true, text: 'Temp / Hum' } },
+        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: 'Gas (ppm)' } }
+      }
+    }
+  });
+
+  // 2. Audio Live Chart (Bar)
+  const audioCtx = document.getElementById('audioLiveChart').getContext('2d');
+  const audioLiveChart = new Chart(audioCtx, {
+    type: 'bar',
+    data: {
+      labels: ['RMS', 'Peak', 'dB'],
+      datasets: [{
+        label: 'Level',
+        data: [0, 0, 0],
+        backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+        borderRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: { duration: 500 },
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, max: 100 }
+      }
+    }
+  });
+
+  // -- Data Fetch & Update Logic --
+  async function updateDashboard() {
+    try {
+      const res = await fetch('/api/dashboard_data');
+      const d = await res.json();
+
+      // 1. Update Summary Cards (Stress Logic Enhanced)
+      const label = d.fusion_label || 'Normal';
+      const conf = (d.fusion_confidence * 100).toFixed(0);
+
+      // Determine active modalities for subtitle
+      let activeMods = [];
+      if (d.vision_anomaly) activeMods.push("Vision");
+      if (d.audio_anomaly) activeMods.push("Audio");
+      if (d.env_anomaly) activeMods.push("Env");
+
+      let subText = "System Normal";
+      if (activeMods.length > 0) {
+        subText = activeMods.join(" + ");
+      } else if (label !== 'Normal') {
+        subText = "Monitoring...";
+      }
+
+      // Update Stress Card
+      const stressEl = document.getElementById('summaryStress');
+      stressEl.innerText = label;
+      // Change color based on severity
+      if (label.includes('High')) stressEl.className = "fw-bold mb-0 text-danger";
+      else if (label.includes('Mild') || label.includes('Anomaly') || label.includes('Alert')) stressEl.className = "fw-bold mb-0 text-warning";
+      else stressEl.className = "fw-bold mb-0 text-success";
+
+      document.getElementById('summaryStressConf').innerText = subText; // Show triggers instead of just conf
+
+      // Behavior Card
+      const latestVis = d.recent_vision && d.recent_vision.length > 0 ? d.recent_vision[0] : null;
+      document.getElementById('summaryBehavior').innerText = latestVis ? latestVis.behavior : 'Normal';
+      document.getElementById('summaryBehaviorConf').innerText = latestVis ? `Conf: ${(100 - (latestVis.mse_score / 10)).toFixed(0)}%` : 'Conf: --%';
+
+      // Env Card
+      document.getElementById('summaryEnv').innerText = d.env_anomaly ? 'Warning' : 'Good';
+      document.getElementById('summaryEnvScore').innerText = `Score: ${(d.env_mse / 1000).toFixed(2)}`;
+
+      // Audio Card
+      document.getElementById('summaryAudio').innerText = d.audio_anomaly ? 'High Noise' : 'Normal';
+      document.getElementById('summaryAudioDB').innerText = `${(d.audio_level || 0).toFixed(1)} dB`;
+
+      // 2. Update Live Vision Panel
+      document.getElementById('camBehavior').innerText = latestVis ? latestVis.behavior : 'Detecting...';
+      document.getElementById('camConf').innerText = latestVis ? `Confidence: ${(100 - (latestVis.mse_score / 10)).toFixed(0)}%` : 'Confidence: --%';
+
+      // Mini History (Dots)
+      const miniHist = document.getElementById('miniBehaviorHistory');
+      if (d.recent_vision && d.recent_vision.length > 0) {
+        miniHist.innerHTML = '';
+        d.recent_vision.slice(0, 5).forEach(v => {
+          const color = (v.behavior !== 'Normal' && v.behavior !== 'Neutral') ? 'bg-danger' : 'bg-success';
+          miniHist.innerHTML += `<span class="badge ${color} rounded-pill" style="width: 10px; height: 10px; padding: 0;" title="${v.behavior}"></span>`;
+        });
+      }
+
+      // 3. Update Mini Panels
+      // Env
+      const temp = d.temperature || 0;
+      const humid = d.humidity || 0;
+      const gas = d.gas || 0;
+      document.getElementById('miniTemp').innerText = temp.toFixed(1);
+      document.getElementById('miniHumid').innerText = humid.toFixed(1);
+      document.getElementById('miniGas').innerText = gas.toFixed(0);
+      document.getElementById('miniEnvScore').innerText = (d.env_mse / 1000).toFixed(2);
+
+      document.getElementById('barTemp').style.width = `${Math.min(temp * 2, 100)}%`; // Approx scale
+      document.getElementById('barHumid').style.width = `${Math.min(humid, 100)}%`;
+      document.getElementById('barGas').style.width = `${Math.min(gas / 10, 100)}%`; // Approx scale
+
+      // Audio
+      document.getElementById('miniAudioClass').innerText = d.audio_anomaly ? 'Stress Calls' : 'Normal';
+      document.getElementById('miniRMS').innerText = (d.mic_rms || 0).toFixed(2);
+      document.getElementById('miniPeak').innerText = (d.mic_peak || 0).toFixed(0);
+      document.getElementById('miniDB').innerText = (d.audio_level || 0).toFixed(1);
+
+      // 4. Update Charts
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      // Env Line Chart
+      if (envLiveChart.data.labels.length > 20) {
+        envLiveChart.data.labels.shift();
+        envLiveChart.data.datasets.forEach(ds => ds.data.shift());
+      }
+      envLiveChart.data.labels.push(time);
+      envLiveChart.data.datasets[0].data.push(temp);
+      envLiveChart.data.datasets[1].data.push(humid);
+      envLiveChart.data.datasets[2].data.push(gas);
+      envLiveChart.update();
+
+      // Audio Bar Chart
+      audioLiveChart.data.datasets[0].data = [
+        (d.mic_rms || 0) * 100, // Scale up RMS
+        d.mic_peak || 0,
+        d.audio_level || 0
+      ];
+      // Color coding
+      const isLoud = (d.audio_level > 60);
+      audioLiveChart.data.datasets[0].backgroundColor = isLoud ? ['#ef4444', '#ef4444', '#ef4444'] : ['#10b981', '#f59e0b', '#3b82f6'];
+      audioLiveChart.update();
+
+      // 5. Advice Logic (Detailed)
+      let causes = [];
+      let suggestions = [];
+
+      if (d.vision_anomaly) {
+        causes.push("Vision: Possible predator, overcrowding, or injury.");
+        suggestions.push("Check live feed, inspect flock health, verify space per bird.");
+      }
+      if (d.audio_anomaly) {
+        causes.push("Audio: Loud machinery, external noise, or distress calls.");
+        suggestions.push("Check ventilation fans, close windows, listen to audio sample.");
+      }
+      if (d.env_anomaly) {
+        causes.push("Env: Temperature/Humidity out of range, or high Ammonia.");
+        suggestions.push("Adjust thermostat, check ventilation system, clean litter.");
+      }
+
+      let adviceContainer = document.getElementById('adviceRow');
+      if (causes.length > 0) {
+        let html = "<strong>Potential Causes:</strong><ul class='mb-1'>";
+        causes.forEach(c => html += `<li>${c}</li>`);
+        html += "</ul><strong>Suggestions:</strong><ul>";
+        suggestions.forEach(s => html += `<li>${s}</li>`);
+        html += "</ul>";
+
+        if (!adviceContainer) {
+          const summaryRow = document.querySelector('.row.g-4.mb-4');
+          adviceContainer = document.createElement('div');
+          adviceContainer.id = 'adviceRow';
+          adviceContainer.className = 'row mb-4';
+          adviceContainer.innerHTML = '<div class="col-12"><div class="alert alert-warning shadow-sm rounded-4 border-0" role="alert"><h5 class="alert-heading fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i>System Advice</h5><div id="adviceContent"></div></div></div>';
+          summaryRow.parentNode.insertBefore(adviceContainer, summaryRow.nextSibling);
+        }
+        document.getElementById('adviceContent').innerHTML = html;
+        adviceContainer.style.display = 'block';
+      } else {
+        if (adviceContainer) adviceContainer.style.display = 'none';
+      }
+
+    } catch (e) {
+      console.error("Dashboard update failed:", e);
+    }
+  }
+
+  // Initial Call & Interval
+  updateDashboard();
+  setInterval(updateDashboard, 2000);
+
+</script>
+{% endblock %}

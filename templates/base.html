@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}🐔 AI Chicken Stress Monitoring System{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="{{ url_for('static', filename='img/icon.png') }}">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --sidebar-width: 260px;
+      --primary: #43a047;
+      --primary-dark: #2e7d32;
+      --bg-light: #f1f8e9;
+      --text-dark: #1b5e20;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-light);
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 100%);
+      color: #fff;
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      transition: transform 0.3s ease;
+      box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar-header {
+      padding: 25px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .sidebar-brand {
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .sidebar-menu {
+      padding: 20px 15px;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .nav-link {
+      color: rgba(255, 255, 255, 0.85);
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      transform: translateX(5px);
+    }
+
+    .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      font-weight: 600;
+    }
+
+    .nav-link i {
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: margin-left 0.3s ease;
+    }
+
+    /* Topbar */
+    .topbar {
+      height: 70px;
+      background-color: white;
+      border-bottom: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      position: sticky;
+      top: 0;
+      z-index: 900;
+    }
+
+    .btn-logout {
+      background-color: #ffebee;
+      color: #c62828;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-logout:hover {
+      background-color: #ffcdd2;
+      color: #b71c1c;
+      transform: translateY(-1px);
+    }
+
+    /* Notification Bell */
+    .notification-btn {
+      position: relative;
+      background: #f1f8e9;
+      color: #2e7d32;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .notification-btn:hover {
+      background: #dcedc8;
+      transform: scale(1.05);
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      background: #e53935;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: bold;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .sidebar.show {
+        transform: translateX(0);
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+    }
+
+    /* Utils */
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #43a047;
+      display: inline-block;
+      box-shadow: 0 0 0 rgba(67, 160, 71, 0.4);
+      animation: pulse 2s infinite;
+    }
+
+    .pulse-dot.offline {
+      background-color: #ef4444;
+      animation: none;
+    }
+
+    @keyframes pulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(67, 160, 71, 0.4);
+      }
+
+      70% {
+        box-shadow: 0 0 0 10px rgba(67, 160, 71, 0);
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 rgba(67, 160, 71, 0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="{{ url_for('dashboard') }}" class="sidebar-brand">
+        <div class="bg-white text-success rounded-circle d-flex align-items-center justify-content-center"
+          style="width: 40px; height: 40px;">
+          <i class="fa-solid fa-egg fs-5"></i>
+        </div>
+        <div>
+          <h6 class="m-0 fw-bold" style="font-size: 1.1rem;">Smart Farm</h6>
+          <small style="font-size: 0.75rem; opacity: 0.8;">Monitoring System</small>
+        </div>
+      </a>
+    </div>
+
+    <div class="sidebar-menu">
+      <a href="{{ url_for('dashboard') }}" class="nav-link {% if request.path == '/' %}active{% endif %}">
+        <i class="fa-solid fa-chart-pie"></i> Dashboard
+      </a>
+      <a href="{{ url_for('environment_page') }}"
+        class="nav-link {% if '/environment' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-temperature-three-quarters"></i> Environment
+      </a>
+      <a href="{{ url_for('audio_page') }}" class="nav-link {% if '/audio' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-microphone-lines"></i> Audio
+      </a>
+      <a href="{{ url_for('vision_page') }}" class="nav-link {% if '/vision' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-video"></i> Vision
+      </a>
+      <a href="{{ url_for('analytics_page') }}" class="nav-link {% if '/analytics' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-chart-line"></i> Analytics
+      </a>
+      <a href="{{ url_for('eggs_page') }}" class="nav-link {% if '/eggs' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-egg"></i> Egg Production
+      </a>
+      <a href="{{ url_for('history_page') }}" class="nav-link {% if '/history' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-clock-rotate-left"></i> History
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-light d-lg-none shadow-sm" id="sidebarToggle">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+
+      <div class="d-flex align-items-center gap-4">
+        <!-- Clock -->
+        <div class="d-none d-md-block text-end">
+          <div id="clockTime" class="fw-bold text-dark" style="font-size: 0.9rem;">--:--</div>
+          <div id="clockDate" class="text-muted" style="font-size: 0.75rem;">--</div>
+        </div>
+
+        <!-- ESP Status -->
+        <div class="d-flex align-items-center gap-2 px-3 py-2 bg-white rounded-pill border shadow-sm">
+          <span id="espDot" class="pulse-dot offline"></span>
+          <span id="espText" class="small fw-bold text-muted">Offline</span>
+        </div>
+
+        <!-- Notification Bell -->
+        <button class="notification-btn shadow-sm" data-bs-toggle="modal" data-bs-target="#alertsModal">
+          <i class="fa-solid fa-bell"></i>
+          <span id="alertBadge" class="notification-badge d-none">0</span>
+        </button>
+
+        <!-- User Profile & Logout -->
+        <div class="d-flex align-items-center gap-3 border-start ps-4">
+          <div class="d-flex align-items-center gap-2">
+            <div class="bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 35px; height: 35px;">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="fw-bold small text-dark">{{ session.get('username', 'Admin') }}</div>
+          </div>
+
+          <a href="{{ url_for('logout') }}" class="btn-logout">
+            <i class="fa-solid fa-right-from-bracket"></i> Logout
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="p-4">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for cat, msg in messages %}
+      <div
+        class="alert alert-{{ 'danger' if cat == 'error' else 'success' }} alert-dismissible fade show shadow-sm border-0"
+        role="alert" style="border-radius: 12px;">
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <!-- Alerts Modal -->
+  <div class="modal fade" id="alertsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow" style="border-radius: 20px;">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold text-dark"><i class="fa-solid fa-bell text-warning me-2"></i>Active Alerts</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div id="modalAlertList" class="list-group list-group-flush">
+            <div class="text-center text-muted py-4">
+              <i class="fa-regular fa-circle-check fs-1 mb-2 text-success opacity-50"></i>
+              <p class="mb-0">All systems normal</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Toggle Sidebar
+    const toggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        sidebar.classList.toggle('show');
+      });
+    }
+
+    // Clock
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clockTime').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      document.getElementById('clockDate').innerText = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // ESP Status & Alerts
+    async function checkStatus() {
+      try {
+        const res = await fetch('/api/dashboard_data');
+        const d = await res.json();
+
+        // 1. ESP Status
+        const online = d.device_status && d.device_status.connected;
+        document.getElementById('espDot').className = online ? 'pulse-dot' : 'pulse-dot offline';
+        document.getElementById('espText').innerText = online ? 'Online' : 'Offline';
+
+        // 2. Alerts
+        const alerts = d.alerts || [];
+        const badge = document.getElementById('alertBadge');
+        const list = document.getElementById('modalAlertList');
+
+        // Update Badge
+        if (alerts.length > 0) {
+          badge.innerText = alerts.length;
+          badge.classList.remove('d-none');
+        } else {
+          badge.classList.add('d-none');
+        }
+
+        // Update Modal List
+        if (alerts.length === 0) {
+          list.innerHTML = `
+            <div class="text-center text-muted py-4">
+              <i class="fa-regular fa-circle-check fs-1 mb-2 text-success opacity-50"></i>
+              <p class="mb-0">All systems normal</p>
+            </div>`;
+        } else {
+          list.innerHTML = '';
+          alerts.forEach(a => {
+            let icon = 'fa-circle-info text-info';
+            let bg = 'bg-light';
+            if (a.severity === 'danger') { icon = 'fa-triangle-exclamation text-danger'; bg = 'bg-danger-subtle'; }
+            else if (a.severity === 'warning') { icon = 'fa-bell text-warning'; bg = 'bg-warning-subtle'; }
+
+            list.innerHTML += `
+              <div class="list-group-item border-0 d-flex align-items-start gap-3 py-3">
+                <div class="rounded-circle p-2 d-flex align-items-center justify-content-center ${bg}" style="width: 35px; height: 35px; min-width: 35px;">
+                  <i class="fa-solid ${icon}"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <h6 class="mb-0 fw-bold text-dark">${a.type || 'System'}</h6>
+                    <small class="text-muted" style="font-size: 0.75rem;">${a.timestamp}</small>
+                  </div>
+                  <p class="mb-1 text-muted small">${a.message}</p>
+                  <button class="btn btn-link btn-sm p-0 text-decoration-none small" onclick="resolveAlert(${a.id})">Dismiss</button>
+                </div>
+              </div>`;
+          });
+        }
+
+      } catch (e) {
+        console.error("Status check failed:", e);
+      }
+    }
+
+    // Resolve Alert
+    async function resolveAlert(id) {
+      try {
+        await fetch(`/api/alerts/${id}/resolve`, { method: 'POST' });
+        checkStatus(); // Refresh immediately
+      } catch (e) {
+        console.error("Failed to resolve alert:", e);
+      }
+    }
+
+    setInterval(checkStatus, 5000);
+    checkStatus();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+__pycache__/
+myenv/
+uploads/
+models/
+*.pyc
+.env
